@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رزومه‌ساز مدرن — حرفه‌ای</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root{
+      --navy:#0b2545; /* سرمه‌ای */
+      --silver:#cfd8dc; /* نقره‌ای */
+      --slate:#6b7280; /* طوسی متوسط */
+      --muted:#64748b;
+      --glass-border:rgba(11,37,69,0.06);
+      --radius:12px;
+      --accent-gradient:linear-gradient(135deg,var(--navy),#2b4a6b);
+      --paper-bg:#ffffff;
+      --frame-shadow: 0 8px 30px rgba(11,37,69,0.12);
+      --success:#22c55e;
+    }
+
+    html,body{height:100%;margin:0;font-family:'Vazirmatn',sans-serif;background:#f3f6f9;color:#0f172a}
+    .wrap{max-width:1300px;margin:28px auto;padding:22px;display:grid;grid-template-columns:320px 1fr 420px;gap:22px}
+    .sidebar,.editor,.preview{background:#fff;border-radius:var(--radius);padding:18px;border:1px solid var(--glass-border);box-shadow:0 4px 20px rgba(2,6,23,0.04)}
+
+    /* controls */
+    .controls{display:flex;flex-direction:column;gap:10px}
+    .btn{padding:10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--navy);cursor:pointer}
+    input,textarea{border-radius:8px;border:1px solid var(--glass-border);padding:8px;background:#fbfcfd;font-family:'Vazirmatn';width:100%}
+    .primary{background:var(--accent-gradient);color:#fff;padding:8px 12px;border-radius:8px;border:0}
+    .ghost{background:transparent;border:1px solid var(--glass-border);padding:8px;border-radius:8px}
+
+    /* resume paper & frame */
+    .frame{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,252,0.9));box-shadow:var(--frame-shadow);display:flex;justify-content:center}
+    .resume{direction:rtl;width:190mm;padding:18mm;border-radius:8px;background:var(--paper-bg);font-size:11pt;line-height:1.45;position:relative;color:#0f172a;box-shadow:inset 0 0 0 1px rgba(11,37,69,0.04)}
+
+    /* metallic border accent (subtle) */
+    .resume::after{content:'';position:absolute;inset:6px;border-radius:6px;pointer-events:none;border:1px solid rgba(11,37,69,0.03)}
+
+    .header-resume{display:flex;gap:12px;align-items:center;border-bottom:1px solid rgba(11,37,69,0.06);padding-bottom:10px}
+    .avatar{width:84px;height:84px;border-radius:12px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:2px solid var(--silver)}
+    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;background:#f7f9fb;font-size:11px;color:var(--slate)}
+
+    .two-col{display:grid;grid-template-columns:1fr 240px;gap:16px;margin-top:12px}
+
+    .section-title{font-weight:700;font-size:12px;background:var(--navy);color:#fff;padding:8px 10px;border-radius:8px;margin-bottom:8px}
+    .section-block{margin-bottom:14px;page-break-inside:avoid}
+    .previewDescription{color:var(--slate);font-size:11pt}
+
+    .skill-tag{padding:6px 8px;border-radius:8px;background:#f1f5f8;margin:4px 4px;font-size:10.5pt;color:var(--navy);display:inline-block}
+
+    /* right vertical accent strip for metallic feel */
+    .vertical-accent{position:absolute;right:0;top:0;height:100%;width:8px;border-top-right-radius:8px;border-bottom-right-radius:8px;background:linear-gradient(180deg,var(--navy),#27486a);opacity:0.95}
+
+    /* meta & layout tweaks */
+    .name-title h3{margin:0;font-size:18pt}
+    .name-title p{margin:2px 0 0;color:var(--slate)}
+    .meta{font-size:10pt;color:var(--slate)}
+
+    /* printing helpers */
+    .resume *{box-sizing:border-box}
+    .section-block h4{margin:0}
+    @media print{body{background:#fff} .wrap{box-shadow:none} .resume{box-shadow:none}}
+
+    /* avoid breaking inside important items */
+    .item, .section-block { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid }
+
+    @media (max-width:1100px){.wrap{grid-template-columns:1fr}.resume{width:100%}}
+    #previewPhoto{display:none}
+    .notif{position:fixed;left:22px;bottom:22px;padding:12px 16px;border-radius:10px;background:var(--success);color:#052e16;font-weight:600;display:none}
+  </style>
+</head>
+<body>
+  <div style="max-width:1300px;margin:18px auto;padding:8px 20px;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:46px;height:46px;border-radius:10px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">RS</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">رزومه‌ساز مدرن</div>
+        <div style="font-size:12px;color:var(--muted)">طراحی شده برای خروجی حرفه‌ای و چاپ‌پذیر — قالب نقره‌ای / سرمه‌ای</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button id="saveDraftTop" class="ghost">ذخیره محلی</button>
+      <button id="downloadPdfTop" class="primary">دانلود PDF</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <aside class="sidebar">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+        <div style="width:42px;height:42px;border-radius:8px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;color:#fff">RS</div>
+        <div>
+          <div style="font-weight:700">رزومه‌ساز</div>
+          <div style="font-size:12px;color:var(--muted)">سریع — تمیز — چاپ‌پذیر</div>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-bottom:8px">افزودن/مدیریت بخش‌ها</div>
+      <div class="controls">
+        <button id="addPersonal" class="btn outline">اطلاعات شخصی</button>
+        <button id="addEducation" class="btn outline">سوابق تحصیلی</button>
+        <button id="addExperience" class="btn outline">سوابق کاری</button>
+        <button id="addSkills" class="btn outline">مهارت‌ها</button>
+      </div>
+
+      <div style="margin-top:14px" class="muted">تنظیمات و ذخیره</div>
+      <div class="controls" style="margin-top:8px">
+        <button id="exportJson" class="btn outline small">خروجی JSON</button>
+        <button id="clearLocal" class="btn outline small">پاکسازی</button>
+      </div>
+    </aside>
+
+    <main class="editor">
+      <h2>ویرایشگر</h2>
+      <div id="formsContainer">
+        <div class="form-block" data-block="personal">
+          <div style="display:flex;gap:12px;margin-bottom:12px">
+            <div style="flex:1"><label>نام و نام خانوادگی</label><input id="name" type="text" placeholder="مثال: محمد رضایی"></div>
+            <div style="flex:1"><label>عنوان شغلی</label><input id="jobTitle" type="text" placeholder="مثال: توسعه‌دهنده فرانت‌اند"></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:12px">
+            <div style="flex:1"><label>ایمیل</label><input id="email" type="email"></div>
+            <div style="flex:1"><label>تلفن</label><input id="phone" type="tel"></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:12px">
+            <div style="flex:1"><label>آدرس</label><input id="address" type="text"></div>
+            <div style="flex:1"><label>وب/لینک</label><input id="website" type="text"></div>
+          </div>
+          <div style="margin-bottom:12px"><label>عکس پروفایل</label><input type="file" id="photo" accept="image/*"></div>
+          <div style="margin-bottom:12px"><label>خلاصه حرفه‌ای</label><textarea id="summary"></textarea></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button id="savePersonal" class="primary">ذخیره</button>
+            <button class="ghost" id="removePersonal">حذف</button>
+          </div>
+        </div>
+
+        <div class="form-block" data-block="education">
+          <h3>سوابق تحصیلی</h3>
+          <div id="educationList"></div>
+          <div style="margin-top:10px"><button id="addEducationItem" class="ghost small">افزودن مورد</button></div>
+        </div>
+
+        <div class="form-block" data-block="experience">
+          <h3>سوابق کاری</h3>
+          <div id="experienceList"></div>
+          <div style="margin-top:10px"><button id="addExperienceItem" class="ghost small">افزودن مورد</button></div>
+        </div>
+
+        <div class="form-block" data-block="skills">
+          <h3>مهارت‌ها</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="skillInput" placeholder="مثال: React.js">
+            <button id="addSkillBtn" class="ghost small">افزودن</button>
+          </div>
+          <div id="skillsTags" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="saveLocal" class="ghost">ذخیره محلی</button>
+        <button id="downloadPdf" class="primary">دانلود PDF</button>
+        <button id="downloadPdfSingle" class="ghost">دانلود PDF — تک‌صفحه‌ای</button>
+        <button id="downloadPng" class="ghost">دانلود PNG</button>
+      </div>
+    </main>
+
+    <aside class="preview">
+      <div class="frame">
+        <div class="resume" id="resumePreview">
+          <div class="vertical-accent" aria-hidden="true"></div>
+          <div class="header-resume">
+            <div class="avatar">
+              <img id="previewPhoto" src="" alt="عکس پروفایل">
+              <div id="avatarInitials" style="font-weight:700;color:#fff;font-size:20px">RS</div>
+            </div>
+            <div class="name-title">
+              <h3 id="previewName">نام و نام خانوادگی</h3>
+              <p id="previewTitle">عنوان شغلی — خلاصه کوتاه</p>
+              <div class="contact" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+                <div class="chip" id="previewEmail">email@example.com</div>
+                <div class="chip" id="previewPhone">0912xxxxxxx</div>
+                <div class="chip" id="previewWebsite">website</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div>
+              <div class="section-block">
+                <div class="section-title">درباره من</div>
+                <div class="item"><p id="previewSummary" class="previewDescription">خلاصه‌ای دربارهٔ خودتان...</p></div>
+              </div>
+
+              <div class="section-block">
+                <div class="section-title">سوابق کاری</div>
+                <div id="previewExperience" class="item"></div>
+              </div>
+
+              <div class="section-block">
+                <div class="section-title">سوابق تحصیلی</div>
+                <div id="previewEducation" class="item"></div>
+              </div>
+            </div>
+
+            <aside style="max-width:240px">
+              <div class="section-block">
+                <div class="section-title">مهارت‌ها</div>
+                <div id="previewSkills"></div>
+              </div>
+
+              <div class="section-block">
+                <div class="section-title">تماس</div>
+                <div style="font-size:11px;color:#374151;margin-top:6px">
+                  <div id="previewAddress">آدرس: تهران</div>
+                  <div id="previewEmail2">ایمیل: email@example.com</div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="notif" class="notif">ذخیره شد</div>
+
+  <script>
+    // NOTE: removed external html2canvas / jsPDF to avoid fragile CDN/runtime document.write issues.
+    // Using print-to-PDF approach (opens printable window) and an SVG-foreignObject fallback for PNG export.
+
+    const STORAGE_KEY = 'modern_resume_v2_fixed';
+    const state = {
+      personal:{name:'محمد امینی',jobTitle:'توسعه‌دهنده فرانت‌اند',email:'mohammad@example.com',phone:'09123456789',address:'تهران',website:'',summary:'توسعه‌دهنده با ۵ سال تجربه',photo:''},
+      education:[],
+      experience:[],
+      skills:['HTML/CSS','JavaScript']
+    };
+
+    function flash(msg){const n=document.getElementById('notif');n.textContent=msg;n.style.display='block';setTimeout(()=>n.style.display='none',1800)}
+    function saveToLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));flash('ذخیره شد')}
+    function loadFromLocal(){const raw=localStorage.getItem(STORAGE_KEY);if(raw){try{const parsed=JSON.parse(raw);Object.assign(state,parsed);}catch(e){console.warn('loadFromLocal parse error',e)}}}
+    function escapeHtml(s){if(!s) return '';return String(s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]||c;});}
+
+    // renderers
+    function renderEducation(){
+      const list=document.getElementById('educationList'); list.innerHTML='';
+      state.education.forEach((e,i)=>{
+        const row=document.createElement('div'); row.style.marginBottom='8px';
+        row.innerHTML = '<input class="edu-degree" placeholder="مدرک" value="'+escapeHtml(e.degree||'')+'">'
+                       +'<input class="edu-univ" placeholder="دانشگاه" value="'+escapeHtml(e.university||'')+'">'
+                       +'<input class="edu-period" placeholder="دوره" value="'+escapeHtml(e.period||'')+'">'
+                       +'<textarea class="edu-desc" placeholder="توضیح">'+escapeHtml(e.description||'')+'</textarea>'
+                       +'<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost save-edu">ذخیره</button><button class="ghost del-edu">حذف</button></div>';
+        list.appendChild(row);
+        row.querySelector('.save-edu').onclick = ()=>{ state.education[i] = { degree: row.querySelector('.edu-degree').value, university: row.querySelector('.edu-univ').value, period: row.querySelector('.edu-period').value, description: row.querySelector('.edu-desc').value }; saveToLocal(); updatePreview(); };
+        row.querySelector('.del-edu').onclick = ()=>{ state.education.splice(i,1); renderEducation(); saveToLocal(); updatePreview(); };
+      });
+      const prev = document.getElementById('previewEducation'); prev.innerHTML=''; state.education.forEach(e=>{ const el=document.createElement('div'); el.style.marginBottom='8px'; el.innerHTML='<div style="font-weight:700">'+escapeHtml(e.degree||'')+'</div><div class="meta">'+escapeHtml(e.university||'')+' — '+escapeHtml(e.period||'')+'</div><p class="previewDescription">'+escapeHtml(e.description||'')+'</p>'; prev.appendChild(el); });
+    }
+
+    function renderExperience(){
+      const list=document.getElementById('experienceList'); list.innerHTML='';
+      state.experience.forEach((e,i)=>{
+        const row=document.createElement('div'); row.style.marginBottom='8px';
+        row.innerHTML = '<input class="exp-title" placeholder="عنوان" value="'+escapeHtml(e.title||'')+'">'
+                       +'<input class="exp-company" placeholder="شرکت" value="'+escapeHtml(e.company||'')+'">'
+                       +'<input class="exp-period" placeholder="دوره" value="'+escapeHtml(e.period||'')+'">'
+                       +'<textarea class="exp-desc" placeholder="توضیح">'+escapeHtml(e.description||'')+'</textarea>'
+                       +'<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost save-exp">ذخیره</button><button class="ghost del-exp">حذف</button></div>';
+        list.appendChild(row);
+        row.querySelector('.save-exp').onclick = ()=>{ state.experience[i] = { title: row.querySelector('.exp-title').value, company: row.querySelector('.exp-company').value, period: row.querySelector('.exp-period').value, description: row.querySelector('.exp-desc').value }; saveToLocal(); updatePreview(); };
+        row.querySelector('.del-exp').onclick = ()=>{ state.experience.splice(i,1); renderExperience(); saveToLocal(); updatePreview(); };
+      });
+      const prev = document.getElementById('previewExperience'); prev.innerHTML=''; state.experience.forEach(e=>{ const el=document.createElement('div'); el.style.marginBottom='8px'; el.innerHTML='<h4>'+escapeHtml(e.title||'')+'</h4><div class="meta">'+escapeHtml(e.company||'')+' — '+escapeHtml(e.period||'')+'</div><p class="previewDescription">'+escapeHtml(e.description||'')+'</p>'; prev.appendChild(el); });
+    }
+
+    function renderSkills(){
+      const tags=document.getElementById('skillsTags'); tags.innerHTML='';
+      state.skills.forEach((s,i)=>{ const el=document.createElement('div'); el.className='skill-tag'; el.textContent=s; el.onclick=()=>{ state.skills.splice(i,1); renderSkills(); saveToLocal(); updatePreview(); }; tags.appendChild(el); });
+      const prev = document.getElementById('previewSkills'); prev.innerHTML=''; state.skills.forEach(s=>{ const e=document.createElement('div'); e.className='skill-tag'; e.textContent=s; prev.appendChild(e); });
+    }
+
+    function updatePreview(){
+      const p=state.personal;
+      document.getElementById('previewName').textContent = p.name || 'نام و نام خانوادگی';
+      document.getElementById('previewTitle').textContent = p.jobTitle || '';
+      document.getElementById('previewSummary').textContent = p.summary || '';
+      document.getElementById('previewAddress').textContent = 'آدرس: ' + (p.address || '');
+      document.getElementById('previewEmail').textContent = p.email || '';
+      document.getElementById('previewEmail2').textContent = 'ایمیل: ' + (p.email || '');
+      document.getElementById('previewPhone').textContent = p.phone || '';
+      document.getElementById('previewWebsite').textContent = p.website || '';
+      if(p.photo){ const img=document.getElementById('previewPhoto'); img.src=p.photo; img.style.display='block'; document.getElementById('avatarInitials').style.display='none'; } else { document.getElementById('previewPhoto').style.display='none'; const initials=document.getElementById('avatarInitials'); initials.style.display='flex'; initials.textContent=getInitials(p.name||''); }
+      renderExperience(); renderEducation(); renderSkills();
+    }
+
+    function getInitials(name){ if(!name) return 'RS'; const parts=String(name).trim().split(/\s+/); const a=parts[0]?parts[0][0]:''; const b=parts.length>1?parts[1][0]:(parts[0]&&parts[0].length>1?parts[0][1]:''); return (a+b).toUpperCase(); }
+
+    // photo helper
+    function handlePhotoUploadFile(file){ if(!file) return; const reader=new FileReader(); reader.onload=e=>{ state.personal.photo=e.target.result; saveToLocal(); updatePreview(); }; reader.readAsDataURL(file); }
+
+    /*
+      Print / PDF helper (robust approach):
+      - Clone resumePreview into a new window and call print().
+      - For single-page export we scale the clone using CSS transform to fit A4.
+    */
+    function openPrintableWindow(cloneHtml, options){
+      const title = options && options.title ? options.title : 'رزومه';
+      const scale = options && options.scale ? options.scale : 1;
+      const win = window.open('', '_blank');
+      if(!win) { alert('مرورگر پنجره جدید را مسدود کرده است. اجازه دهید popup باز شود یا از کلید میانبر چاپ استفاده کنید.'); return; }
+      const doc = win.document;
+      const style = `
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+          html,body{margin:0;padding:8mm;background:#fff;font-family:'Vazirmatn',sans-serif;color:#0f172a}
+          .resume{width:190mm;margin:0 auto;transform-origin:top left;transform:scale(${scale});}
+          @page{size:A4;margin:10mm}
+          .vertical-accent{display:none}
+        </style>
+      `;
+      doc.open();
+      doc.write('<!doctype html><html lang="fa" dir="rtl"><head><title>'+escapeHtml(title)+'</title>'+style+'</head><body>');
+      doc.write(cloneHtml);
+      doc.write('</body></html>');
+      doc.close();
+      win.focus();
+      // wait for fonts to load before print
+      setTimeout(()=>{ try{ win.print(); }catch(e){ console.warn('print error',e); } }, 600);
+    }
+
+    function downloadPDF(){
+      const node=document.getElementById('resumePreview');
+      const clone=node.cloneNode(true);
+      // remove interactive-only elements if any
+      clone.querySelectorAll('[id^="preview"]').forEach(el=>{});
+      openPrintableWindow(clone.outerHTML, { title: state.personal.name || 'رزومه' });
+      flash('پنجرهٔ چاپ باز شد — برای ذخیره به PDF از گزینه چاپ مرورگر استفاده کنید');
+    }
+
+    function downloadPDFSinglePage(){
+      const node=document.getElementById('resumePreview');
+      const rect = node.getBoundingClientRect();
+      const PAGE_HEIGHT_PX = 1123; const marginPx = 40; const availablePx = PAGE_HEIGHT_PX - marginPx*2;
+      const currentHeight = rect.height || node.offsetHeight || 1200;
+      let scale = 1;
+      if(currentHeight > availablePx) scale = availablePx / currentHeight;
+      const clone=node.cloneNode(true);
+      openPrintableWindow(clone.outerHTML, { title: state.personal.name || 'رزومه', scale: scale });
+      flash('نسخه تک‌صفحه‌ای آمادهٔ چاپ است — از گزینه چاپ مرورگر ذخیره کن');
+    }
+
+    // PNG export via SVG <foreignObject> fallback (works in modern Chrome/Firefox but may have font limitations)
+    function downloadPNG(){
+      const node = document.getElementById('resumePreview');
+      const cloned = node.cloneNode(true);
+      // remove the vertical accent from image export
+      const va = cloned.querySelector('.vertical-accent'); if(va) va.remove();
+      // inline computed styles may be needed for full fidelity — we keep basic layout
+      const width = Math.round(node.offsetWidth || 1122);
+      const height = Math.round(node.offsetHeight || 1587);
+      const serialized = new XMLSerializer().serializeToString(cloned);
+      const svg = '<?xml version="1.0" encoding="utf-8"?>' +
+                  '<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'">' +
+                  '<foreignObject width="100%" height="100%">' +
+                  '<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Vazirmatn, sans-serif;">' + serialized + '</div>' +
+                  '</foreignObject></svg>';
+      const img = new Image();
+      img.onload = function(){
+        try{
+          const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,width,height);
+          ctx.drawImage(img,0,0);
+          const url = canvas.toDataURL('image/png');
+          const a = document.createElement('a'); a.href = url; a.download = 'resume.png'; a.click();
+          flash('PNG دانلود شد');
+        }catch(e){ console.error(e); alert('خطا در تولید PNG: '+e.message); }
+      };
+      img.onerror = function(){ alert('خروجی PNG پشتیبانی نمی‌شود یا فونت‌ها بارگذاری نشده‌اند. لطفاً از گزینه چاپ به PDF استفاده کنید.'); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    // init & bindings
+    document.addEventListener('DOMContentLoaded', ()=>{
+      loadFromLocal();
+      document.getElementById('name').value = state.personal.name || '';
+      document.getElementById('jobTitle').value = state.personal.jobTitle || '';
+      document.getElementById('email').value = state.personal.email || '';
+      document.getElementById('phone').value = state.personal.phone || '';
+      document.getElementById('address').value = state.personal.address || '';
+      document.getElementById('website').value = state.personal.website || '';
+      document.getElementById('summary').value = state.personal.summary || '';
+      if(state.personal.photo){ document.getElementById('previewPhoto').src = state.personal.photo; document.getElementById('previewPhoto').style.display='block'; document.getElementById('avatarInitials').style.display='none'; }
+
+      renderEducation(); renderExperience(); renderSkills(); updatePreview();
+
+      // basic buttons
+      document.getElementById('saveLocal').addEventListener('click', saveToLocal);
+      document.getElementById('saveDraftTop').addEventListener('click', saveToLocal);
+      document.getElementById('savePersonal').addEventListener('click', ()=>{
+        state.personal.name = document.getElementById('name').value;
+        state.personal.jobTitle = document.getElementById('jobTitle').value;
+        state.personal.email = document.getElementById('email').value;
+        state.personal.phone = document.getElementById('phone').value;
+        state.personal.address = document.getElementById('address').value;
+        state.personal.website = document.getElementById('website').value;
+        state.personal.summary = document.getElementById('summary').value;
+        saveToLocal(); updatePreview();
+      });
+      document.getElementById('removePersonal').addEventListener('click', ()=>{ const el=document.querySelector('[data-block=personal]'); if(el) el.remove(); });
+
+      document.getElementById('addEducation').addEventListener('click', ()=>document.querySelector('[data-block=education]').scrollIntoView({behavior:'smooth'}));
+      document.getElementById('addExperience').addEventListener('click', ()=>document.querySelector('[data-block=experience]').scrollIntoView({behavior:'smooth'}));
+      document.getElementById('addSkills').addEventListener('click', ()=>document.querySelector('[data-block=skills]').scrollIntoView({behavior:'smooth'}));
+
+      document.getElementById('addEducationItem').addEventListener('click', ()=>{ state.education.push({degree:'',university:'',period:'',description:''}); renderEducation(); });
+      document.getElementById('addExperienceItem').addEventListener('click', ()=>{ state.experience.push({title:'',company:'',period:'',description:''}); renderExperience(); });
+      document.getElementById('addSkillBtn').addEventListener('click', ()=>{ const v=document.getElementById('skillInput').value.trim(); if(!v) return; state.skills.push(v); document.getElementById('skillInput').value=''; renderSkills(); saveToLocal(); updatePreview(); });
+
+      document.getElementById('photo').addEventListener('change', e=>{ const f = e.target.files && e.target.files[0]; if(f) handlePhotoUploadFile(f); });
+
+      document.getElementById('exportJson').addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='resume.json'; a.click(); URL.revokeObjectURL(url); });
+      document.getElementById('clearLocal').addEventListener('click', ()=>{ localStorage.removeItem(STORAGE_KEY); location.reload(); });
+
+      document.getElementById('downloadPdf').addEventListener('click', downloadPDF);
+      document.getElementById('downloadPdfTop').addEventListener('click', downloadPDF);
+      document.getElementById('downloadPdfSingle').addEventListener('click', downloadPDFSinglePage);
+      document.getElementById('downloadPng').addEventListener('click', downloadPNG);
+    });
+  </script>
+</body>
+</html>
